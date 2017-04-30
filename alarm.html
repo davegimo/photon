@@ -8,13 +8,6 @@
           var token;
 
           function login(){
-            if(window.Notification && Notification.permission !== "denied") {
-              Notification.requestPermission(function(status) {  // status is "granted", if accepted by user
-                  var n = new Notification('Title', { 
-                      body: 'I am the body text!',
-                  }); 
-              });
-        	}
             var pass = document.getElementById("password").value;
             var user = document.getElementById("user").value;
             particle.login({username: user, password: pass}).then(
@@ -24,8 +17,19 @@
                 document.getElementById("loginDiv").style.display = "none";
                 document.getElementById("table").style.display = "inline";
                 document.getElementById("stopButton").disabled = true;
-              },
-              function (err) {
+                
+                
+                particle.getEventStream({ deviceId: '4c003c001051363036373538', name: 'motion_detected', auth: token }).then(function(stream) {
+                    alert("subscription to motion_detected done");
+                    stream.on('event', function(data) {
+                      console.log("Event: " + data);
+                      document.getElementById("stopButton").disabled = false;
+                      document.getElementById("image").src = "https://i.giphy.com/o4lCfVK06ah2M.gif";
+                    });
+                  });
+                
+                
+              },function (err) {
                 console.log('Could not log in.', err);
                 alert("Wrong email/password \nplease retry");
                 document.getElementById("password").value = "";
@@ -34,25 +38,19 @@
             );
             
             setTimeout(function(){
-              particle.getEventStream({ deviceId: '4c003c001051363036373538', name: 'motion_detected', auth: token }).then(function(stream) {
-                alert("subscription to motion_detected done");
-                stream.on('event', function(data) {
-                  console.log("Event: " + data);
-                  document.getElementById("devices").innerHTML= "data.name:"+data.name+",data.data:"+data.data+",data.ttl:"+data.ttl+",data.published_at:"+data.published_at+",data.coreid:"+data.coreid;
-                  document.getElementById("stopButton").disabled = false;
-                  document.getElementById("image").src = "https://i.giphy.com/o4lCfVK06ah2M.gif";
+			
+			    particle.getVariable({ deviceId: '4c003c001051363036373538', name: 'alarmOn', auth: token }).then(function(data) {
+                  console.log('Device variable retrieved successfully:', data);
+                  if(data.body.result == 1){
+                    document.getElementById("stopButton").disabled = false;
+                    document.getElementById("image").src = "https://i.giphy.com/o4lCfVK06ah2M.gif";
+                  }
+                }, function(err) {
+                  console.log('An error occurred while getting attrs:', err);
                 });
-              });
-              particle.getVariable({ deviceId: '4c003c001051363036373538', name: 'alarmOn', auth: token }).then(function(data) {
-              console.log('Device variable retrieved successfully:', data);
-              if(data.body.result == 1){
-                document.getElementById("stopButton").disabled = false;
-                document.getElementById("image").src = "https://i.giphy.com/o4lCfVK06ah2M.gif";
-              }
-            }, function(err) {
-              console.log('An error occurred while getting attrs:', err);
-            });
+        
             }, 2000);
+			
           }
           
           function listDevices(){
@@ -60,7 +58,6 @@
             devicesPr.then(
               function(devices){
                 console.log('Devices: ', devices);
-                document.getElementById("devices").innerHTML= devices;
               },
               function(err) {
                 console.log('List devices call failed: ', err);
@@ -100,7 +97,6 @@
           function getVariable(){
             particle.getVariable({ deviceId: '4c003c001051363036373538', name: 'intruders', auth: token }).then(function(data) {
               console.log('Device variable retrieved successfully:', data);
-              document.getElementById("devices").innerHTML= data.body.result;
               document.getElementById("variableLabel").innerHTML= "The number of intruders is "+data.body.result;
             }, function(err) {
               console.log('An error occurred while getting attrs:', err);
@@ -113,7 +109,6 @@
               alert("subscription done");
               stream.on('event', function(data) {
                 console.log("Event: " + data);
-                document.getElementById("devices").innerHTML= "data.name:"+data.name+",data.data:"+data.data+",data.ttl:"+data.ttl+",data.published_at:"+data.published_at+",data.coreid:"+data.coreid;
               });
             });
           }
@@ -128,7 +123,6 @@
   <center>
   <br>
   
-  <p id="devices"  style="display: none"> lista dei device </p>
   
  
   
