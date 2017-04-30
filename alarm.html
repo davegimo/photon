@@ -53,17 +53,6 @@
 			
           }
           
-          function listDevices(){
-            var devicesPr = particle.listDevices({ auth: token });
-            devicesPr.then(
-              function(devices){
-                console.log('Devices: ', devices);
-              },
-              function(err) {
-                console.log('List devices call failed: ', err);
-              }
-            );
-          }
 
 
           function callStart(){
@@ -104,15 +93,6 @@
           }
 
 
-          function subscribe(){
-            particle.getEventStream({ deviceId: '4c003c001051363036373538', name: 'motion_detected', auth: token }).then(function(stream) {
-              alert("subscription done");
-              stream.on('event', function(data) {
-                console.log("Event: " + data);
-              });
-            });
-          }
-
       </script>
   </head>
   <body>
@@ -148,23 +128,11 @@
           <br><br>
           <button onClick="getVariable()"> Get the number of intruders </button>
           <label id="variableLabel"></label>
-          <br><br>
-          <button onClick="subscribe()"> Subscribe via javascript </button>
         </td>
       </tr>
     </table>
       
-    
-    <label style="display: none">Wich function you want to call?</label>
-    <br>
-    <br>
- 
-  <form style="display: none" target="_blank" action="https://api.particle.io/v1/devices/4c003c001051363036373538/start?access_token=f5b6bcab5ba3a5075b6435ca680529d2f81991c0" method="POST">
-    <input type="submit" value="start">
-  </form>
-  <form style="display: none" target="_blank" action="https://api.particle.io/v1/devices/4c003c001051363036373538/stop?access_token=f5b6bcab5ba3a5075b6435ca680529d2f81991c0" method="POST">
-    <input type="submit" value="stop">
-  </form>
+   
   </center>
   </body>
 </html>
